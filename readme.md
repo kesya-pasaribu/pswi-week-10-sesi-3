@@ -6,70 +6,44 @@ Prodi : D-IV TRPL
 
 1. Cara Menjalankan 
 
-   Disini kita buat file html dan js nya dulu kemudian  di html kita sambungkan file js  
-   kemudian di file html kita klik kanan pilih "Open With Live Server"
-   baru di situlah kita dapat melihat hasil codingan java script kita.
+   Disini aku buat file html dan js nya dulu kemudian,  di html aku sambungkan file js  
+   kemudian di file html aku klik kanan pilih "Open With Live Server"
+   baru di situlah aku dapat melihat hasil codingan java script kita.
 
 
-2. tahapan perubahan kode dari HTML statis menuju render berbasis state dinamis:
+2. tahapan perubahan kode :
 
-(Starter DOM): Membuat struktur dasar HTML menggunakan tag utama <main>, heading <h1>, 
-               paragraf status (<p id=pesan>), dan daftar tak berurutan (<ul id=daftar>).
+A. Struktur HTML Form (index.html):
+   saya menambahkan elemen <form> yang berisi input teks dengan atribut required, tombol submit, elemen <p id="pesan"> untuk status (menggunakan role="status" agar ramah aksesibilitas/screen reader), dan elemen <ul> penampung list peserta.\
+
+B. Manajemen State dan Penambahan Data main.js 
+   Saya mendeklarasikan state berupa array kosong let peserta = [] dan penghitung ID lokal let berikutnya = 1. Saat form disubmit (submit), fungsi event.preventDefault() dipanggil agar halaman tidak melakukan refresh otomatis. Nilai input dibersihkan dari spasi berlebih menggunakan trim()
+
+C. Rendering Dinamis & Tombol Hapus:
+   Fungsi render() membersihkan isi list lama menggunakan daftar.replaceChildren() (cara aman DOM manipulation), lalu meloop data peserta untuk membuat elemen <li>, <span> untuk nama, dan <button> Hapus yang dilengkapi atribut unik.
+
+D. Event Delegation:
+   Memasang event listener ke setiap tombol hapus satu per satu (yang boros memori jika data banyak), Saya cukup memasang satu event listener pada elemen pembungkusnya (daftar / <ul>). Dengan bantuan method .closest("button[data-id]"), sistem bisa mendeteksi tombol mana yang diklik secara akurat meskipun tombol tersebut dibuat secara dinamis.
 
 
-(Teks & Elemen Baru): Belajar menyisipkan elemen <li> baru lewat JavaScript menggunakan 
-                      document.createElement("li")` dan mengisi teksnya menggunakan textContent.
-
-
-(State & Render): Memisahkan sumber data (state) dalam bentuk array of objects (let peserta =)
-                  dari tampilan DOM. Fungsi `render()` dibuat untuk membersihkan elemen lama 
-                  (replaceChildren()) dan menggambar ulang elemen berdasarkan isi array.
-
-(Keadaan Kosong / Empty State): mambahkan logika conditional menggunakan operator ternary 
-                                (`peserta.length ? "" : "Belum ada peserta"`) 
-                                untuk memunculkan teks informasi secara otomatis apabila data peserta kosong.
 
  3. Hasil Uji 
+A. Submit Enter:
+   Mengetik nama valid lalu tekan Enter atau klik tombol Tambah Hasilnya, Item berhasil dirender ke DOM dengan ID yang sesuai
 
- lemen berjalan null terdiagnosa di console
+B. Nama Spasi Saja:
+   Mengisi input hanya dengan spasi (" ") lalu submit Hasilnya, State peserta tidak bertambah dan pesan peringatan muncul
 
- Markup sebagai Nama Mengisi textContent dengan tag HTML (<b>Rina</b>), 
- data tidak ditafsirkan sebagai markup melainkan teks biasa.
 
- Tag muncul secara harfiah di layar sebagai teks biasa (`<b>Rina</b>`), tidak membuat elemen <b> baru.
+C. Hapus Dinamis:
+   Mengklik tombol "Hapus" pada salah satu item list Hasilnya, Tombol dinamis berfungsi dengan baik melalui teknik event delegation
 
- Render Dua KalI Memanggil fungsi render() dua kali berturut-turut untuk memastikan tidak terjadi duplikasi data di DOM.
 
- Jumlah elemen `li` di DOM tetap konsisten sesuai jumlah data state (tidak berlipat ganda).
-
-Array Kosong ([]) Menguji kondisi saat array peserta diubah menjadi kosong, pesan keadaan kosong harus tampil.
-
-Teks Belum ada peserta tampil di elemen paragraf pesan.
 
 4. Batasan 
 
-*Tanpa Framework:Seluruh manipulasi DOM murni menggunakan JavaScript (Vanilla JavaScript),
-                 tidak boleh memasang atau menggunakan *framework* besar seperti React, Vue, atau Angular.
+1. Validasi input yang diterapkan masih berupa validasi dasar di sisi klien (seperti mengecek apakah input nama kosong atau hanya berisi spasi) tanpa bantuan framework atau aturan validasi tingkat lanjut.
 
+2. Program ini berfokus murni pada manipulasi DOM, penanganan event form, dan event delegation secara lokal di sisi klien. 
 
-* **Keamanan Teks:Karena menggunakan `textContent`, aplikasi dibatasi untuk tidak mem-parsing 
-                string HTML secara langsung demi menjaga keamanan dari celah *XSS (Cross-Site Scripting)*.
-
-1. Perbedaan textContent dan HTML parsing 
-            "TEXTCONTENT"
-   - TextContent Definisi: Properti JavaScript yang digunakan untuk mengatur atau mengambil teks murni, di dalam suatu elemen DOM.   
-   - Contohnya di kode saya : di sini saya memasukkan string yang mengandung tag HTML seperti <b>Rina</b>, browser akan menampilkan string tersebut secara mentah di layar persis apa adanya dan tidak akan membuat elemen tag baru di DOM.
-
-            "HTML Parsing"
-    - HTML Parsing Definisi : Proses saat browser membaca, menganalisis, dan menerjemahkan string teks yang mengandung tag HTML (misalnya <b>, <i>) menjadi elemen struktur DOM yang aktif dan dirender secara visual.
-    - Contohnya, tag HTML diterjemahkan oleh parser browser sehingga tag tersebut benar-benar berfungsi (contohnya membuat teks menjadi tebal secara nyata).
-
-    "Kesimpulan Perbedaan Utamanya"
-1. Cara Membaca Data
-di textContent, Dianggap dan diperlakukan murni sebagai teks biasa nah sedangkan di HTML Parsing Diterjemahkan sebagai elemen atau tag markup HTML
-
-2. Hasil di Layar
-di textContent, Menampilkan tag secara langsung kaya di kode saya tuh misalnya : teks <b>Rina</b> muncul di layar. nah sedangkan di HTML Parsing Menampilkan hasil format elemen (misal: teks Rina tercetak tebal)
-
-3. Dari Segi Keamanan nya 
-di textContent, Aman dari celah serangan siber seperti XSS (Cross-Site Scripting). nah sedangkan di HTML Parsing Berisiko jika langsung merender data mentah dari input pengguna.
+3. Data peserta yang dimasukkan hanya disimpan di dalam memori (state array JavaScript). Ketika halaman web direload (dimuat ulang), state memori akan kembali ke awal dan data yang telah ditambahkan akan hilang. Program ini belum menggunakan penyimpanan permanen seperti LocalStorage, SessionStorage, atau basis data server.   
